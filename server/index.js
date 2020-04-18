@@ -2,11 +2,16 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const authRouter = require('./routes/auth');
+const authMiddleware = require('./middlewares/auth');
 
 const app = express();
 
 //middlewares
 app.use(bodyParser.json());
+
+//routes
+app.use('/api', authRouter);
 
 //database
 mongoose
