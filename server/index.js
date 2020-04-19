@@ -13,6 +13,11 @@ app.use(bodyParser.json());
 //routes
 app.use('/api', authRouter);
 
+app.post('/check', authMiddleware, (req, res) => {
+  console.log(req.body);
+  res.status(200).json(req.body);
+});
+
 //database
 mongoose
   .connect(process.env.DATABASE, {

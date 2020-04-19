@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const Token = require('../models').Token;
 
 module.exports = (req, res, next) => {
   const authHeader = req.get('Authorization');
@@ -9,10 +9,14 @@ module.exports = (req, res, next) => {
 
   const token = authHeader.replace('Barear ', '');
   try {
-    jwt.verify(token, process.env.JWT_SECRET);
+    Token.verifyAccess(token);
   } catch (e) {
+    if (e instanceof jwt.TokenExpiredError) {
+      res.status(401).json({ message: 'Token expired!' });
+      return;
+    }
     if (e instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ message: 'Invalis user' });
+      return res.status(401).json({ message: 'Invalid token!' });
     }
   }
 
