@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
 
   const token = authHeader.replace('Barear ', '');
   try {
-    Token.verifyAccess(token);
+    Token.verifyAccessToken(token);
   } catch (e) {
     if (e instanceof jwt.TokenExpiredError) {
       res.status(401).json({ message: 'Token expired!' });

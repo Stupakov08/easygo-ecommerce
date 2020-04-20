@@ -60,10 +60,10 @@ tokenSchema.statics.generateAccessToken = (userId) => {
   return jwt.sign(payload, process.env.JWT_SECRET_ACCESS, options);
 };
 
-tokenSchema.statics.verifyAccess = (token) => {
+tokenSchema.statics.verifyAccessToken = (token) => {
   return jwt.verify(token, process.env.JWT_SECRET_ACCESS);
 };
-tokenSchema.statics.verifyRefresh = (token) => {
+tokenSchema.statics.verifyRefreshToken = (token) => {
   return jwt.verify(token, process.env.JWT_SECRET_REFRESH);
 };
 
