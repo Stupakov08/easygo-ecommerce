@@ -1,5 +1,6 @@
 require('dotenv').config();
 const authServices = require('../services/auth');
+const returnError = require('../helpers/returnError');
 
 const refreshTokens = (req, res) => {
   const { refreshToken } = req.body;
@@ -7,7 +8,7 @@ const refreshTokens = (req, res) => {
   authServices
     .refreshTokens(refreshToken)
     .then(tokens => res.json(tokens))
-    .catch(err => res.status(400).json({ message: err.message }));
+    .catch(err => returnError(err, res));
 };
 
 const signIn = (req, res) => {
@@ -16,7 +17,7 @@ const signIn = (req, res) => {
   authServices
     .signIn({ email, password })
     .then(tokens => res.json(tokens))
-    .catch(err => res.status(500).json({ message: err.message }));
+    .catch(err => returnError(err, res));
 };
 
 module.exports = {
