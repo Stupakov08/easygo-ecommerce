@@ -15,7 +15,7 @@ const tokenSchema = new mongoose.Schema({
   },
 });
 
-tokenSchema.statics.updateTokens = (userId) => {
+tokenSchema.statics.updateTokens = userId => {
   const Token = mongoose.model('Token', tokenSchema);
 
   const accessToken = Token.generateAccessToken(userId);
@@ -31,6 +31,7 @@ tokenSchema.statics.updateTokens = (userId) => {
 
 tokenSchema.statics.replaceRefreshToken = (tokenId, userId) => {
   const Token = mongoose.model('Token', tokenSchema);
+
   return Token.deleteMany({ userId })
     .exec()
     .then(() => Token.create({ tokenId, userId }));
@@ -50,7 +51,7 @@ tokenSchema.statics.generateRefreshToken = () => {
   };
 };
 
-tokenSchema.statics.generateAccessToken = (userId) => {
+tokenSchema.statics.generateAccessToken = userId => {
   const payload = {
     userId,
     type: tokens.access.type,
@@ -60,10 +61,10 @@ tokenSchema.statics.generateAccessToken = (userId) => {
   return jwt.sign(payload, process.env.JWT_SECRET_ACCESS, options);
 };
 
-tokenSchema.statics.verifyAccessToken = (token) => {
+tokenSchema.statics.verifyAccessToken = token => {
   return jwt.verify(token, process.env.JWT_SECRET_ACCESS);
 };
-tokenSchema.statics.verifyRefreshToken = (token) => {
+tokenSchema.statics.verifyRefreshToken = token => {
   return jwt.verify(token, process.env.JWT_SECRET_REFRESH);
 };
 

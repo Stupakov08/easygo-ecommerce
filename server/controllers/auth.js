@@ -1,22 +1,21 @@
 require('dotenv').config();
 const authServices = require('../services/auth');
-const returnError = require('../helpers/returnError');
+const { returnError, returnAuthTokens } = require('../helpers/helpers');
 
 const refreshTokens = (req, res) => {
-  const { refreshToken } = req.body;
+  const refreshToken = req.cookies.refreshToken;
 
   authServices
     .refreshTokens(refreshToken)
-    .then(tokens => res.json(tokens))
+    .then(tokens => returnAuthTokens(tokens, res))
     .catch(err => returnError(err, res));
 };
 
 const signIn = (req, res) => {
   const { email, password } = req.body;
-
   authServices
     .signIn({ email, password })
-    .then(tokens => res.json(tokens))
+    .then(tokens => returnAuthTokens(tokens, res))
     .catch(err => returnError(err, res));
 };
 
