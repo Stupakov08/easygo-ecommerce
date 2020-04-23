@@ -5,45 +5,35 @@ require('dotenv').config();
 const User = require('../models').User;
 const Token = require('../models').Token;
 const {
-  TokenExpiredError,
   TokenInvalidError,
   UserDoesNotExistError,
   InvalidCredentialsError,
+  InvalidSessionError,
 } = require('../helpers/errors');
 
-const refreshTokens = refreshToken => {
-  let payload;
+const refreshTokens = async (refreshToken, actualFingerprint) => {
+  const payload = Token.verifyRefreshToken(refreshToken);
 
-  try {
-    payload = Token.verifyRefreshToken(refreshToken);
-  } catch (e) {
-    return new Promise(() => {
-      throw e instanceof jwt.TokenExpiredError
-        ? new TokenExpiredError()
-        : new TokenInvalidError();
-    });
-  }
+  const session = await Token.findOne({ tokenId: payload.id }).exec();
+  if (!session) throw new TokenInvalidError();
 
-  return Token.findOne({ tokenId: payload.id })
-    .exec()
-    .then(token => {
-      if (!token) throw new TokenInvalidError();
-      return Token.updateTokens(token.userId);
-    });
+  await session.remove();
+
+  if (session.fingerprint != actualFingerprint) throw new InvalidSessionError();
+
+  return Token.addSession(session.userId, actualFingerprint);
 };
 
-const signIn = ({ email, password }) => {
-  return User.findOne({ email })
-    .exec()
-    .then(user => {
-      if (!user) throw new UserDoesNotExistError();
+const signIn = async ({ email, password, fingerprint }) => {
+  const user = await User.findOne({ email }).exec();
 
-      const isValid = bcrypt.compareSync(password, user.password);
+  if (!user) throw new UserDoesNotExistError();
 
-      if (!isValid) throw new InvalidCredentialsError();
+  const isValid = bcrypt.compareSync(password, user.password);
 
-      return Token.updateTokens(user._id);
-    });
+  if (!isValid) throw new InvalidCredentialsError();
+
+  return Token.addSession(user._id, fingerprint);
 };
 
 module.exports = {

@@ -4,19 +4,20 @@ const { returnError, returnAuthTokens } = require('../helpers/helpers');
 
 const refreshTokens = (req, res) => {
   const refreshToken = req.cookies.refreshToken;
+  const { fingerprint } = req.body;
 
   authServices
-    .refreshTokens(refreshToken)
-    .then(tokens => returnAuthTokens(tokens, res))
-    .catch(err => returnError(err, res));
+    .refreshTokens(refreshToken, fingerprint)
+    .then(returnAuthTokens(res))
+    .catch(returnError(res));
 };
 
 const signIn = (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, fingerprint } = req.body;
   authServices
-    .signIn({ email, password })
-    .then(tokens => returnAuthTokens(tokens, res))
-    .catch(err => returnError(err, res));
+    .signIn({ email, password, fingerprint })
+    .then(returnAuthTokens(res))
+    .catch(returnError(res));
 };
 
 module.exports = {

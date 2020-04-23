@@ -5,8 +5,9 @@ module.exports = {
         expiresIn: '2m',
       },
       refresh: {
-        expiresIn: '3m',
+        expiresIn: '7d',
       },
     },
+    numberOfSessions: 5,
   },
 };

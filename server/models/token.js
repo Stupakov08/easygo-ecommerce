@@ -1,40 +1,41 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const { tokens } = require('../config/app').jwt;
+const { tokens, numberOfSessions } = require('../config/app').jwt;
 const { v4: uuidv4 } = require('uuid');
+const { TokenExpiredError, TokenInvalidError } = require('../helpers/errors');
 
-const tokenSchema = new mongoose.Schema({
-  tokenId: {
-    type: String,
-    required: true,
+const tokenSchema = new mongoose.Schema(
+  {
+    tokenId: {
+      type: String,
+      required: true,
+    },
+    userId: {
+      type: String,
+      required: true,
+    },
+    fingerprint: {
+      type: String,
+      required: true,
+    },
   },
-  userId: {
-    type: String,
-    required: true,
-  },
-});
+  { timestamps: true },
+);
 
-tokenSchema.statics.updateTokens = userId => {
-  const Token = mongoose.model('Token', tokenSchema);
+tokenSchema.statics.dropAllUserSessions = userId => {
+  return Token.deleteMany({ userId });
+};
+
+tokenSchema.statics.addSession = async (userId, fingerprint) => {
+  const userSessions = await Token.find({ userId }).exec();
+  if (userSessions.length > numberOfSessions) Token.dropAllUserSessions(userId);
 
   const accessToken = Token.generateAccessToken(userId);
   const refreshToken = Token.generateRefreshToken();
 
-  return Token.replaceRefreshToken(refreshToken.id, userId).then(() => {
-    return {
-      accessToken,
-      refreshToken: refreshToken.token,
-    };
-  });
-};
-
-tokenSchema.statics.replaceRefreshToken = (tokenId, userId) => {
-  const Token = mongoose.model('Token', tokenSchema);
-
-  return Token.deleteMany({ userId })
-    .exec()
-    .then(() => Token.create({ tokenId, userId }));
+  await Token.create({ tokenId: refreshToken.id, userId, fingerprint });
+  return { accessToken, refreshToken: refreshToken.token };
 };
 
 tokenSchema.statics.generateRefreshToken = () => {
@@ -62,10 +63,25 @@ tokenSchema.statics.generateAccessToken = userId => {
 };
 
 tokenSchema.statics.verifyAccessToken = token => {
-  return jwt.verify(token, process.env.JWT_SECRET_ACCESS);
-};
-tokenSchema.statics.verifyRefreshToken = token => {
-  return jwt.verify(token, process.env.JWT_SECRET_REFRESH);
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET_ACCESS);
+  } catch (e) {
+    throw e instanceof jwt.TokenExpiredError
+      ? new TokenExpiredError()
+      : new TokenInvalidError();
+  }
 };
 
-module.exports = mongoose.model('Token', tokenSchema);
+tokenSchema.statics.verifyRefreshToken = token => {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET_REFRESH);
+  } catch (e) {
+    throw e instanceof jwt.TokenExpiredError
+      ? new TokenExpiredError()
+      : new TokenInvalidError();
+  }
+};
+
+const Token = mongoose.model('Token', tokenSchema);
+
+module.exports = Token;

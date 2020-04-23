@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 require('dotenv').config();
-const authRouter = require('./routes/auth');
+const routes = require('./routes');
 const authMiddleware = require('./middlewares/auth');
 const cookieParser = require('cookie-parser');
 
@@ -14,7 +14,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 //routes
-app.use('/api', authRouter);
+app.use('/api', routes);
 
 app.post('/check', authMiddleware, (req, res) => {
   console.log(req.body);

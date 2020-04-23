@@ -23,8 +23,18 @@ class InvalidCredentialsError extends Error {
   }
 }
 
+class InvalidSessionError extends Error {
+  constructor(message = '') {
+    super();
+    this.name = 'InvalidSessionError';
+    this.status = '401';
+    this.message = `Invalid Session ${message}`.trim();
+  }
+}
+
 module.exports = {
   TokenExpiredError,
   TokenInvalidError,
   InvalidCredentialsError,
+  InvalidSessionError,
 };
