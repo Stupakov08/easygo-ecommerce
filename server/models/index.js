@@ -1,7 +1,7 @@
 const User = require('./user');
-const Token = require('./token');
+const Session = require('./session');
 
 module.exports = {
   User,
-  Token,
+  Session,
 };

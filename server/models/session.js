@@ -5,7 +5,7 @@ const { tokens, numberOfSessions } = require('../config/app').jwt;
 const { v4: uuidv4 } = require('uuid');
 const { TokenExpiredError, TokenInvalidError } = require('../helpers/errors');
 
-const tokenSchema = new mongoose.Schema(
+const sessionSchema = new mongoose.Schema(
   {
     tokenId: {
       type: String,
@@ -23,22 +23,23 @@ const tokenSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-tokenSchema.statics.dropAllUserSessions = userId => {
-  return Token.deleteMany({ userId });
+sessionSchema.statics.dropAllUserSessions = userId => {
+  return Session.deleteMany({ userId });
 };
 
-tokenSchema.statics.addSession = async (userId, fingerprint) => {
-  const userSessions = await Token.find({ userId }).exec();
-  if (userSessions.length > numberOfSessions) Token.dropAllUserSessions(userId);
+sessionSchema.statics.addSession = async (userId, fingerprint) => {
+  const userSessions = await Session.find({ userId }).exec();
+  if (userSessions.length > numberOfSessions)
+    Session.dropAllUserSessions(userId);
 
-  const accessToken = Token.generateAccessToken(userId);
-  const refreshToken = Token.generateRefreshToken();
+  const accessToken = Session.generateAccessToken(userId);
+  const refreshToken = Session.generateRefreshToken();
 
-  await Token.create({ tokenId: refreshToken.id, userId, fingerprint });
+  await Session.create({ tokenId: refreshToken.id, userId, fingerprint });
   return { accessToken, refreshToken: refreshToken.token };
 };
 
-tokenSchema.statics.generateRefreshToken = () => {
+sessionSchema.statics.generateRefreshToken = () => {
   const payload = {
     id: uuidv4(),
     type: tokens.refresh.type,
@@ -52,7 +53,7 @@ tokenSchema.statics.generateRefreshToken = () => {
   };
 };
 
-tokenSchema.statics.generateAccessToken = userId => {
+sessionSchema.statics.generateAccessToken = userId => {
   const payload = {
     userId,
     type: tokens.access.type,
@@ -62,7 +63,7 @@ tokenSchema.statics.generateAccessToken = userId => {
   return jwt.sign(payload, process.env.JWT_SECRET_ACCESS, options);
 };
 
-tokenSchema.statics.verifyAccessToken = token => {
+sessionSchema.statics.verifyAccessToken = token => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET_ACCESS);
   } catch (e) {
@@ -72,7 +73,7 @@ tokenSchema.statics.verifyAccessToken = token => {
   }
 };
 
-tokenSchema.statics.verifyRefreshToken = token => {
+sessionSchema.statics.verifyRefreshToken = token => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET_REFRESH);
   } catch (e) {
@@ -82,6 +83,6 @@ tokenSchema.statics.verifyRefreshToken = token => {
   }
 };
 
-const Token = mongoose.model('Token', tokenSchema);
+const Session = mongoose.model('Session', sessionSchema);
 
-module.exports = Token;
+module.exports = Session;

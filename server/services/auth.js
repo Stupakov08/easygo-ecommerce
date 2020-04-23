@@ -2,8 +2,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const User = require('../models').User;
-const Token = require('../models').Token;
+const User = require('../models/user');
+const Session = require('../models/session');
+
 const {
   TokenInvalidError,
   UserDoesNotExistError,
@@ -12,16 +13,16 @@ const {
 } = require('../helpers/errors');
 
 const refreshTokens = async (refreshToken, actualFingerprint) => {
-  const payload = Token.verifyRefreshToken(refreshToken);
+  const payload = Session.verifyRefreshToken(refreshToken);
 
-  const session = await Token.findOne({ tokenId: payload.id }).exec();
+  const session = await Session.findOne({ tokenId: payload.id }).exec();
   if (!session) throw new TokenInvalidError();
 
   await session.remove();
 
   if (session.fingerprint != actualFingerprint) throw new InvalidSessionError();
 
-  return Token.addSession(session.userId, actualFingerprint);
+  return Session.addSession(session.userId, actualFingerprint);
 };
 
 const signIn = async ({ email, password, fingerprint }) => {
@@ -33,7 +34,7 @@ const signIn = async ({ email, password, fingerprint }) => {
 
   if (!isValid) throw new InvalidCredentialsError();
 
-  return Token.addSession(user._id, fingerprint);
+  return Session.addSession(user._id, fingerprint);
 };
 
 module.exports = {
