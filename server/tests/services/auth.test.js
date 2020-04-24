@@ -2,7 +2,7 @@ const authServices = require('../../services/auth');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const mongoose = require('mongoose');
-const { InvalidCredentialsError } = require('../../helpers/errors');
+const { InvalidCredentialsError } = require('../../errors');
 const Session = require('../../models/session');
 
 beforeAll(async () => {

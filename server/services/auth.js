@@ -1,4 +1,3 @@
-const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const User = require('../models/user');
@@ -9,7 +8,36 @@ const {
   UserDoesNotExistError,
   InvalidCredentialsError,
   InvalidSessionError,
-} = require('../helpers/errors');
+  EmailIsAlreadyTakenError,
+  PasswordsDoNotMatch,
+} = require('../errors');
+
+const signUp = async ({ name, email, password, passwordconf, fingerprint }) => {
+  const user = await User.findOne({ email }).exec();
+
+  if (user) throw new EmailIsAlreadyTakenError();
+  if (password != passwordconf) throw new PasswordsDoNotMatch();
+
+  const newUser = await new User({
+    name,
+    email,
+    password,
+  }).save();
+
+  return Session.addSession(newUser._id, fingerprint);
+};
+
+const signIn = async ({ email, password, fingerprint }) => {
+  const user = await User.findOne({ email }).exec();
+
+  if (!user) throw new UserDoesNotExistError();
+  console.log('ppp', password, user.password);
+  const isValid = user.comparePassword(password);
+
+  if (!isValid) throw new InvalidCredentialsError();
+
+  return Session.addSession(user._id, fingerprint);
+};
 
 const refreshTokens = async (refreshToken, actualFingerprint) => {
   const payload = Session.verifyRefreshToken(refreshToken);
@@ -24,19 +52,8 @@ const refreshTokens = async (refreshToken, actualFingerprint) => {
   return Session.addSession(session.userId, actualFingerprint);
 };
 
-const signIn = async ({ email, password, fingerprint }) => {
-  const user = await User.findOne({ email }).exec();
-
-  if (!user) throw new UserDoesNotExistError();
-
-  const isValid = bcrypt.compareSync(password, user.password);
-
-  if (!isValid) throw new InvalidCredentialsError();
-
-  return Session.addSession(user._id, fingerprint);
-};
-
 module.exports = {
-  refreshTokens,
+  signUp,
   signIn,
+  refreshTokens,
 };

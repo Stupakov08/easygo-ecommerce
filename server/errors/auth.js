@@ -32,9 +32,29 @@ class InvalidSessionError extends Error {
   }
 }
 
+class EmailIsAlreadyTakenError extends Error {
+  constructor(message = '') {
+    super();
+    this.name = 'EmailIsAlreadyTakenError';
+    this.status = '400';
+    this.message = `Email Is Already Taken Error ${message}`.trim();
+  }
+}
+
+class PasswordsDoNotMatch extends Error {
+  constructor(message = '') {
+    super();
+    this.name = 'PasswordsDoNotMatch';
+    this.status = '400';
+    this.message = `Passwords Do Not Match ${message}`.trim();
+  }
+}
+
 module.exports = {
   TokenExpiredError,
   TokenInvalidError,
   InvalidCredentialsError,
   InvalidSessionError,
+  EmailIsAlreadyTakenError,
+  PasswordsDoNotMatch,
 };

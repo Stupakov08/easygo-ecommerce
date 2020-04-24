@@ -2,12 +2,11 @@ require('dotenv').config();
 const authServices = require('../services/auth');
 const { returnError, returnAuthTokens } = require('../helpers/helpers');
 
-const refreshTokens = (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  const { fingerprint } = req.body;
+const signUp = async (req, res) => {
+  const { name, email, password, passwordconf, fingerprint } = req.body;
 
   authServices
-    .refreshTokens(refreshToken, fingerprint)
+    .signUp({ name, email, password, passwordconf, fingerprint })
     .then(returnAuthTokens(res))
     .catch(returnError(res));
 };
@@ -20,7 +19,18 @@ const signIn = (req, res) => {
     .catch(returnError(res));
 };
 
+const refreshTokens = (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  const { fingerprint } = req.body;
+
+  authServices
+    .refreshTokens(refreshToken, fingerprint)
+    .then(returnAuthTokens(res))
+    .catch(returnError(res));
+};
+
 module.exports = {
+  signUp,
   signIn,
   refreshTokens,
 };
