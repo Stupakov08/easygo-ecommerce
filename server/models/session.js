@@ -30,8 +30,11 @@ sessionSchema.statics = {
 
   addSession: async (userId, fingerprint) => {
     const userSessions = await Session.find({ userId }).exec();
-    if (userSessions.length > numberOfSessions)
+
+    userSessions.length > numberOfSessions &&
       Session.dropAllUserSessions(userId);
+
+    await Session.deleteMany({ userId, fingerprint }).exec();
 
     const accessToken = Session.generateAccessToken(userId);
     const refreshToken = Session.generateRefreshToken();

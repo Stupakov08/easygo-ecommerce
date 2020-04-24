@@ -2,7 +2,12 @@ const authServices = require('../../services/auth');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const mongoose = require('mongoose');
-const { InvalidCredentialsError } = require('../../errors');
+const {
+  InvalidCredentialsError,
+  EmailIsAlreadyTakenError,
+} = require('../../errors');
+const { v4: uuidv4 } = require('uuid');
+
 const Session = require('../../models/session');
 
 beforeAll(async () => {
@@ -15,6 +20,43 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await mongoose.connection.close();
+});
+
+describe('signUp', () => {
+  it('adds new user and return valid tokens', () => {
+    expect.assertions(2);
+    return authServices
+      .signUp({
+        email: `${uuidv4().slice(0, 8)}_stupakov@gmail.com`,
+        password: 'myPassword',
+        passwordconf: 'myPassword',
+        fingerprint: 'abcd',
+        name: 'Vova',
+      })
+      .then(({ accessToken, refreshToken }) => {
+        refreshToken = jwt.verify(refreshToken, process.env.JWT_SECRET_REFRESH);
+        accessToken = jwt.verify(accessToken, process.env.JWT_SECRET_ACCESS);
+
+        expect(typeof refreshToken.id).toBe('string');
+        expect(typeof accessToken.userId).toBe('string');
+      });
+  });
+
+  it('handle exist email and throw EmailIsAlreadyTakenError', () => {
+    expect.assertions(1);
+
+    return authServices
+      .signUp({
+        email: 'stupakov08@gmail.com',
+        password: 'myPassword',
+        passwordconf: 'myPassword',
+        fingerprint: 'abcd',
+        name: 'Vova',
+      })
+      .catch(err => {
+        expect(err instanceof EmailIsAlreadyTakenError).toBe(true);
+      });
+  });
 });
 
 describe('signIn', () => {
@@ -48,6 +90,8 @@ describe('signIn', () => {
         expect(err instanceof InvalidCredentialsError).toBe(true);
       });
   });
+  it('drop all user sessions if he login on 5 device', () => {});
+  it('delete session with the same fingerprint', () => {});
 });
 
 describe('refreshToken', () => {

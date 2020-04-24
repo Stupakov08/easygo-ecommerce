@@ -35,8 +35,8 @@ userSchema
   });
 
 userSchema.methods = {
-  comparePassword: password => {
-    bcrypt.compareSync(password, this.password_hash);
+  comparePassword: function (password) {
+    return bcrypt.compareSync(password, this.password_hash);
   },
 };
 

@@ -31,7 +31,7 @@ const signIn = async ({ email, password, fingerprint }) => {
   const user = await User.findOne({ email }).exec();
 
   if (!user) throw new UserDoesNotExistError();
-  console.log('ppp', password, user.password);
+
   const isValid = user.comparePassword(password);
 
   if (!isValid) throw new InvalidCredentialsError();
