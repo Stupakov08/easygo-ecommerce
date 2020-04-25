@@ -10,4 +10,7 @@ module.exports = {
     },
     numberOfSessions: 5,
   },
+  auth: {
+    emailConfirmation: true,
+  },
 };

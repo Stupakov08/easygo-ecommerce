@@ -29,8 +29,18 @@ const refreshTokens = (req, res) => {
     .catch(returnError(res));
 };
 
+const verifyEmail = (req, res) => {
+  const token = req.params.token;
+
+  authServices
+    .verifyEmail(token)
+    .then(() => res.status(200).json({}))
+    .catch(returnError(res));
+};
+
 module.exports = {
   signUp,
   signIn,
   refreshTokens,
+  verifyEmail,
 };

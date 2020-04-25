@@ -1,4 +1,5 @@
 require('dotenv').config();
+const config = require('../config/app').auth;
 
 const User = require('../models/user');
 const Session = require('../models/session');
@@ -22,7 +23,10 @@ const signUp = async ({ name, email, password, passwordconf, fingerprint }) => {
     name,
     email,
     password,
+    verified: config.emailConfirmation ? false : true,
   }).save();
+
+  config.emailConfirmation && newUser.sendVerificationEmail();
 
   return Session.addSession(newUser._id, fingerprint);
 };
@@ -52,8 +56,15 @@ const refreshTokens = async (refreshToken, actualFingerprint) => {
   return Session.addSession(session.userId, actualFingerprint);
 };
 
+const verifyEmail = async token => {
+  const payload = User.verifyVerificationEmailToken(token);
+
+  return User.verifyUser(payload.userId);
+};
+
 module.exports = {
   signUp,
   signIn,
   refreshTokens,
+  verifyEmail,
 };
