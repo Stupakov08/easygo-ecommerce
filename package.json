@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
+    "start": "node index.js",
+    "start:dev": "nodemon index.js",
     "test": "jest"
   },
   "keywords": [],
@@ -20,10 +21,10 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.9",
     "nodemailer": "^6.4.6",
-    "nodemon": "^2.0.3",
     "uuid": "^7.0.3"
   },
   "devDependencies": {
+    "nodemon": "^2.0.3",
     "jest": "^25.4.0"
   },
   "jest": {
