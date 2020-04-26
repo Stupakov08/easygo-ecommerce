@@ -7,7 +7,7 @@ const signUp = async (req, res) => {
 
   authServices
     .signUp({ name, email, password, passwordconf, fingerprint })
-    .then(returnAuthTokens(res))
+    .then(returnAuthTokens(res, req))
     .catch(returnError(res));
 };
 
@@ -15,7 +15,7 @@ const signIn = (req, res) => {
   const { email, password, fingerprint } = req.body;
   authServices
     .signIn({ email, password, fingerprint })
-    .then(returnAuthTokens(res))
+    .then(returnAuthTokens(res, req))
     .catch(returnError(res));
 };
 
@@ -25,7 +25,7 @@ const refreshTokens = (req, res) => {
 
   authServices
     .refreshTokens(refreshToken, fingerprint)
-    .then(returnAuthTokens(res))
+    .then(returnAuthTokens(res, req))
     .catch(returnError(res));
 };
 

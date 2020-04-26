@@ -5,11 +5,11 @@ const returnError = res => err => {
     .json({ message, ...(process.env.NODE_MODE && { stack }) });
 };
 
-const returnAuthTokens = res => ({ accessToken, refreshToken }) => {
+const returnAuthTokens = (res, req) => ({ accessToken, refreshToken }) => {
   res.cookie('refreshToken', refreshToken, {
     maxAge: Number(Date.now()) + 60 * 60 * 24 * 60,
     path: '/api/auth', //Send cookie only on this endpoint
-    domain: 'localhost',
+    domain: req.hostname,
     httpOnly: true, //Deny access to cookie via JS
     secure: isDevelopmentMode() ? false : true, //Allow req only with ssl
   });
