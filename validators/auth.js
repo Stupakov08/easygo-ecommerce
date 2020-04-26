@@ -14,7 +14,6 @@ exports.userSignupValidator = [
 ];
 
 exports.userSignInValidator = [
-  check('name', 'Name is empty').not().isEmpty(),
   check('email', 'Invalid email').isEmail(),
   check('password', 'Invalid password').isLength({ min: 6 }),
   check('fingerprint', 'fingerprint is empty').not().isEmpty(),
