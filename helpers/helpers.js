@@ -6,14 +6,7 @@ const returnError = res => err => {
 };
 
 const returnAuthTokens = (res, req) => ({ accessToken, refreshToken }) => {
-  res.cookie('refreshToken', refreshToken, {
-    maxAge: Number(Date.now()) + 60 * 60 * 24 * 60,
-    path: '/api/auth', //Send cookie only on this endpoint
-    domain: req.hostname,
-    httpOnly: true, //Deny access to cookie via JS
-    secure: isDevelopmentMode() ? false : true, //Allow req only with ssl
-  });
-  return res.json({ accessToken });
+  return res.status(200).json({ accessToken, refreshToken });
 };
 
 const isDevelopmentMode = () => {

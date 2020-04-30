@@ -28,7 +28,7 @@ const signUp = async ({ name, email, password, passwordconf, fingerprint }) => {
 
   config.emailConfirmation && newUser.sendVerificationEmail();
 
-  return Session.addSession(newUser._id, fingerprint);
+  return Session.addSession(newUser, fingerprint);
 };
 
 const signIn = async ({ email, password, fingerprint }) => {
@@ -40,7 +40,7 @@ const signIn = async ({ email, password, fingerprint }) => {
 
   if (!isValid) throw new InvalidCredentialsError();
 
-  return Session.addSession(user._id, fingerprint);
+  return Session.addSession(user, fingerprint);
 };
 
 const refreshTokens = async (refreshToken, actualFingerprint) => {
@@ -53,7 +53,18 @@ const refreshTokens = async (refreshToken, actualFingerprint) => {
 
   if (session.fingerprint != actualFingerprint) throw new InvalidSessionError();
 
-  return Session.addSession(session.userId, actualFingerprint);
+  const user = await User.findById(session.userId);
+
+  return Session.addSession(user._id, actualFingerprint);
+};
+
+const signOut = async refreshToken => {
+  const payload = Session.verifyRefreshToken(refreshToken);
+
+  const session = await Session.findOne({ tokenId: payload.id }).exec();
+  if (!session) throw new TokenInvalidError();
+
+  return session.remove();
 };
 
 const verifyEmail = async token => {
@@ -65,6 +76,7 @@ const verifyEmail = async token => {
 module.exports = {
   signUp,
   signIn,
+  signOut,
   refreshTokens,
   verifyEmail,
 };

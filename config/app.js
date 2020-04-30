@@ -2,10 +2,10 @@ module.exports = {
   jwt: {
     tokens: {
       access: {
-        expiresIn: '2m',
+        expiresIn: '5m',
       },
       refresh: {
-        expiresIn: '7d',
+        expiresIn: '60d',
       },
     },
     numberOfSessions: 5,
@@ -13,4 +13,5 @@ module.exports = {
   auth: {
     emailConfirmation: true,
   },
+  clientUrl: 'http://localhost:3000',
 };

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const authServices = require('../services/auth');
 const { returnError, returnAuthTokens } = require('../helpers/helpers');
+const clientUrl = require('../config/app').clientUrl;
 
 const signUp = async (req, res) => {
   const { name, email, password, passwordconf, fingerprint } = req.body;
@@ -13,6 +14,7 @@ const signUp = async (req, res) => {
 
 const signIn = (req, res) => {
   const { email, password, fingerprint } = req.body;
+
   authServices
     .signIn({ email, password, fingerprint })
     .then(returnAuthTokens(res, req))
@@ -20,8 +22,7 @@ const signIn = (req, res) => {
 };
 
 const refreshTokens = (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  const { fingerprint } = req.body;
+  const { refreshToken, fingerprint } = req.body;
 
   authServices
     .refreshTokens(refreshToken, fingerprint)
@@ -29,18 +30,27 @@ const refreshTokens = (req, res) => {
     .catch(returnError(res));
 };
 
-const verifyEmail = (req, res) => {
-  const token = req.params.token;
+const signOut = (req, res) => {
+  const { refreshToken } = req.body;
 
   authServices
-    .verifyEmail(token)
+    .signOut(refreshToken)
     .then(() => res.status(200).json({}))
+    .catch(returnError(res));
+};
+
+const verifyEmail = (req, res) => {
+  const token = req.params.token;
+  authServices
+    .verifyEmail(token)
+    .then(() => res.status(200).redirect(`${clientUrl}/verified`))
     .catch(returnError(res));
 };
 
 module.exports = {
   signUp,
   signIn,
+  signOut,
   refreshTokens,
   verifyEmail,
 };

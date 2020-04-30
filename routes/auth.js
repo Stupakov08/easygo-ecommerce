@@ -26,6 +26,8 @@ router.post(
   runValidation,
   authController.refreshTokens,
 );
+router.post('/signout', authController.signOut);
+
 router.get('/verifyemail/:token', authController.verifyEmail);
 
 module.exports = router;

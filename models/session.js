@@ -28,7 +28,8 @@ sessionSchema.statics = {
     return Session.deleteMany({ userId });
   },
 
-  addSession: async (userId, fingerprint) => {
+  addSession: async (user, fingerprint) => {
+    const userId = user._id;
     const userSessions = await Session.find({ userId }).exec();
 
     userSessions.length > numberOfSessions &&
@@ -36,7 +37,11 @@ sessionSchema.statics = {
 
     await Session.deleteMany({ userId, fingerprint }).exec();
 
-    const accessToken = Session.generateAccessToken(userId);
+    const accessToken = Session.generateAccessToken({
+      userId,
+      name: user.name,
+      email: user.email,
+    });
     const refreshToken = Session.generateRefreshToken();
 
     await Session.create({ tokenId: refreshToken.id, userId, fingerprint });
@@ -57,14 +62,14 @@ sessionSchema.statics = {
     };
   },
 
-  generateAccessToken: userId => {
-    const payload = {
-      userId,
+  generateAccessToken: payload => {
+    const data = {
+      payload,
       type: tokens.access.type,
     };
     const options = { expiresIn: tokens.access.expiresIn };
 
-    return jwt.sign(payload, process.env.JWT_SECRET_ACCESS, options);
+    return jwt.sign(data, process.env.JWT_SECRET_ACCESS, options);
   },
 
   verifyAccessToken: token => {

@@ -5,19 +5,25 @@ require('dotenv').config();
 const routes = require('./routes');
 const authMiddleware = require('./middlewares/auth');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const clientUrl = require('./config/app').clientUrl;
 
 const app = express();
 
 //middlewares
-//app.use(cors({origin: 'http://localhost:3000', credentials: true}))
+app.use(
+  cors({
+    origin: clientUrl,
+    credentials: true,
+  }),
+);
 app.use(cookieParser());
 app.use(bodyParser.json());
 
 //routes
 app.use('/api', routes);
 
-app.post('/check', authMiddleware, (req, res) => {
-  console.log(req.body);
+app.post('/api/check', authMiddleware, (req, res) => {
   res.status(200).json(req.body);
 });
 

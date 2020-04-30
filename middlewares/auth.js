@@ -8,12 +8,12 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ message: 'Token not provided!' });
   }
 
-  const token = authHeader.replace('Barear ', '');
+  const token = authHeader.replace('Bearer ', '');
+
   try {
     Session.verifyAccessToken(token);
+    next();
   } catch (err) {
     returnError(res)(err);
   }
-
-  next();
 };
