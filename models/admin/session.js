@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const { tokens, numberOfSessions } = require('../config/app').jwt;
+const { tokens, numberOfSessions } = require('../../config/app').jwt;
 const { v4: uuidv4 } = require('uuid');
-const { TokenExpiredError, TokenInvalidError } = require('../errors');
+const { TokenExpiredError, TokenInvalidError } = require('../../errors');
 
-const sessionSchema = new mongoose.Schema(
+const adminSessionSchema = new mongoose.Schema(
   {
     tokenId: {
       type: String,
@@ -23,28 +23,32 @@ const sessionSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-sessionSchema.statics = {
+adminSessionSchema.statics = {
   dropAllUserSessions: userId => {
-    return Session.deleteMany({ userId });
+    return AdminSession.deleteMany({ userId });
   },
 
   addSession: async (user, fingerprint) => {
     const userId = user._id;
-    const userSessions = await Session.find({ userId }).exec();
+    const userSessions = await AdminSession.find({ userId }).exec();
 
     userSessions.length > numberOfSessions &&
-      Session.dropAllUserSessions(userId);
+      AdminSession.dropAllUserSessions(userId);
 
-    await Session.deleteMany({ userId, fingerprint }).exec();
+    await AdminSession.deleteMany({ userId, fingerprint }).exec();
 
-    const accessToken = Session.generateAccessToken({
+    const accessToken = AdminSession.generateAccessToken({
       userId,
       name: user.name,
       email: user.email,
     });
-    const refreshToken = Session.generateRefreshToken();
+    const refreshToken = AdminSession.generateRefreshToken();
 
-    await Session.create({ tokenId: refreshToken.id, userId, fingerprint });
+    await AdminSession.create({
+      tokenId: refreshToken.id,
+      userId,
+      fingerprint,
+    });
     return { accessToken, refreshToken: refreshToken.token };
   },
 
@@ -54,7 +58,7 @@ sessionSchema.statics = {
       type: tokens.refresh.type,
     };
     const options = {
-      expiresIn: tokens.refresh.expiresIn,
+      expiresIn: '30m',
     };
     return {
       id: payload.id,
@@ -67,7 +71,7 @@ sessionSchema.statics = {
       payload,
       type: tokens.access.type,
     };
-    const options = { expiresIn: '15m' };
+    const options = { expiresIn: tokens.access.expiresIn };
 
     return jwt.sign(data, process.env.JWT_SECRET_ACCESS, options);
   },
@@ -93,6 +97,6 @@ sessionSchema.statics = {
   },
 };
 
-const Session = mongoose.model('Session', sessionSchema);
+const AdminSession = mongoose.model('AdminSession', adminSessionSchema);
 
-module.exports = Session;
+module.exports = AdminSession;

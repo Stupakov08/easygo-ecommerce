@@ -7,18 +7,21 @@ const authMiddleware = require('./middlewares/auth');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const clientUrl = require('./config/app').clientUrl;
-
+const adminUrl = 'http://localhost:3001';
 const app = express();
 
 //middlewares
 app.use(
   cors({
-    origin: clientUrl,
+    origin: [clientUrl, adminUrl],
     credentials: true,
   }),
 );
 app.use(cookieParser());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb', extended: true }));
+
+app.use(express.static('static'));
+app.use('/static', express.static('static'));
 
 //routes
 app.use('/api', routes);
