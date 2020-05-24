@@ -30,6 +30,19 @@ const get = async ({ userId }) => {
   return Session.addSession(newUser, fingerprint);
 };
 
+const getList = async ({ search, count, skip, sort, order }) => {
+  let users;
+  try {
+    count = parseInt(count);
+    skip = parseInt(skip);
+    users = await User.getList({ search, count, skip, sort, order });
+  } catch (e) {
+    throw e;
+  }
+  return users;
+};
+
 module.exports = {
   get,
+  getList,
 };

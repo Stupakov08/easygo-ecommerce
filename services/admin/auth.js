@@ -25,6 +25,7 @@ const signIn = async ({ email, password, passwordconf, fingerprint }) => {
     user = await new AdminUser({
       email,
       password,
+      superadmin: true,
     }).save();
   }
 

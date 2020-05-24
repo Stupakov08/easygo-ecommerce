@@ -33,6 +33,26 @@ const makeImageUrl = p => {
   });
   return { ...p, images };
 };
+const filterByProps = (res, arrayOfProps) => {
+  if (Array.isArray(res)) {
+    return (
+      res &&
+      res.map(r => {
+        const newObj = {};
+        arrayOfProps.map(prop => {
+          newObj[prop] = r[prop];
+        });
+        return newObj;
+      })
+    );
+  } else {
+    const newObj = {};
+    arrayOfProps.map(prop => {
+      newObj[prop] = res[prop];
+    });
+    return newObj;
+  }
+};
 const makeImageUrls = products => {
   if (Array.isArray(products)) {
     return products.map(makeImageUrl);
@@ -62,4 +82,5 @@ module.exports = {
   returnData,
   decodeBase64Image,
   makeImageUrls,
+  filterByProps,
 };

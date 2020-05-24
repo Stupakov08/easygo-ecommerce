@@ -11,9 +11,11 @@ module.exports = (req, res, next) => {
   const token = authHeader.replace('Bearer ', '');
 
   try {
-    AdminSession.verifyAccessToken(token);
+    const { payload } = AdminSession.verifyAccessToken(token);
+    req.superadmin = payload.superadmin;
     next();
   } catch (err) {
+    console.log('AUTH MIDDLE', err);
     returnError(res)(err);
   }
 };

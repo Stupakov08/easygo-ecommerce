@@ -39,8 +39,8 @@ adminSessionSchema.statics = {
 
     const accessToken = AdminSession.generateAccessToken({
       userId,
-      name: user.name,
       email: user.email,
+      superadmin: user.superadmin,
     });
     const refreshToken = AdminSession.generateRefreshToken();
 
@@ -58,7 +58,7 @@ adminSessionSchema.statics = {
       type: tokens.refresh.type,
     };
     const options = {
-      expiresIn: '30m',
+      expiresIn: '60m',
     };
     return {
       id: payload.id,
@@ -71,7 +71,7 @@ adminSessionSchema.statics = {
       payload,
       type: tokens.access.type,
     };
-    const options = { expiresIn: tokens.access.expiresIn };
+    const options = { expiresIn: '30m' };
 
     return jwt.sign(data, process.env.JWT_SECRET_ACCESS, options);
   },

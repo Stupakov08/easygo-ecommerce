@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const { sendMail } = require('../helpers/mailer');
 const jwt = require('jsonwebtoken');
+const { addIdField, filterByProps } = require('../helpers/helpers');
 
 const userSchema = new mongoose.Schema(
   {
@@ -76,6 +77,33 @@ userSchema.statics = {
   },
   verifyUser: function (userId) {
     return User.updateOne({ _id: userId }, { $set: { verified: true } });
+  },
+  getList: function ({ search, count, skip, sort, order }) {
+    return User.find({ name: new RegExp('^' + search, 'i') })
+      .sort({ [sort]: order })
+      .limit(count)
+      .skip(skip)
+      .lean()
+      .then(async res => {
+        res = addIdField(res);
+        res = filterByProps(res, [
+          '_id',
+          'id',
+          'name',
+          'email',
+          'createdAt',
+          'updatedAt',
+          'verified',
+        ]);
+        const total = await User.countDocuments({
+          name: new RegExp('^' + search, 'i'),
+        });
+
+        return {
+          data: res,
+          total,
+        };
+      });
   },
 };
 
