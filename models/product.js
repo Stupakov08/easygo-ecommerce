@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { addIdField, makeImageUrls } = require('../helpers/helpers');
 const fetch = require('node-fetch');
+
 const productSchema = new mongoose.Schema(
   {
     title: {
@@ -21,6 +22,7 @@ const productSchema = new mongoose.Schema(
     price: {
       type: Number,
     },
+    categories: [{ type: mongoose.Types.ObjectId, ref: 'Category' }],
     images: {
       type: [
         {
@@ -38,8 +40,9 @@ const productSchema = new mongoose.Schema(
 productSchema.statics = {
   get: function ({ search, count, skip, sort, order }) {
     return Product.find({ title: new RegExp('^' + search, 'i') })
+      .populate('categories')
       .sort({ [sort]: order })
-      .limit(count)
+      .limit(count - skip)
       .skip(skip)
       .lean()
       .then(async res => {
@@ -53,14 +56,15 @@ productSchema.statics = {
       });
   },
   getProduct: async function ({ id }) {
-    let product = await Product.findById(id);
+    let product = await Product.findById(id).populate('categories');
     return makeImageUrls(addIdField(product._doc));
   },
-  add: function ({ title, description, images, price }) {
+  add: function ({ title, description, images, price, categories }) {
     const prod = new Product({
       title,
       description,
       images,
+      categories,
       price: parseFloat(price),
     });
     return prod.save();

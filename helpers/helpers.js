@@ -72,6 +72,28 @@ const decodeBase64Image = dataString => {
 
   return response;
 };
+const productIdtoLine = cartItems => {
+  return (
+    cartItems &&
+    cartItems.map(({ quantity, productId }) => {
+      return { quantity, line: productId };
+    })
+  );
+};
+
+const makeImgUrls = images =>
+  images
+    ? images.map(img => {
+        const imgBuffer = decodeBase64Image(img.base);
+        const ext = img.rawFile.name.match(/.\w+$/, 'i')[0];
+        const name = uid(16) + ext;
+        fs.writeFileSync(
+          path.join(__dirname, '/../static/products/') + name,
+          imgBuffer.data,
+        );
+        return { url: name };
+      })
+    : undefined;
 
 module.exports = {
   returnError,
@@ -83,4 +105,6 @@ module.exports = {
   decodeBase64Image,
   makeImageUrls,
   filterByProps,
+  productIdtoLine,
+  makeImgUrls,
 };

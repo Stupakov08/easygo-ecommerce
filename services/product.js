@@ -2,11 +2,10 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const uid = require('uid');
-const { decodeBase64Image } = require('../helpers/helpers');
+const { decodeBase64Image, addIdField } = require('../helpers/helpers');
 
 const Product = require('../models/product');
-
-const {} = require('../errors');
+const Category = require('../models/category');
 
 const get = async ({ search, count, skip, sort, order }) => {
   let products;
@@ -27,7 +26,23 @@ const getProduct = async ({ id }) => {
 const deleteProduct = async ({ id }) => {
   return Product.deleteOne({ _id: id }).exec();
 };
-const addProduct = async ({ title, description, images, price, code }) => {
+const getCategories = async categories => {
+  return Promise.all(
+    categories.map(async id => {
+      const cat = await Category.find({ _id: id }).exec();
+
+      return cat[0];
+    }),
+  );
+};
+const addProduct = async ({
+  title,
+  description,
+  images,
+  price,
+  code,
+  categories,
+}) => {
   const imgUrls = images
     ? images.map(img => {
         const imgBuffer = decodeBase64Image(img.base);
@@ -41,16 +56,34 @@ const addProduct = async ({ title, description, images, price, code }) => {
       })
     : undefined;
 
+  categories = await getCategories(categories);
+
   let product = new Product({
     title,
     description,
     price,
     code,
     images: imgUrls,
+    categories,
   });
-  return product.save();
+  let prod = await product.save();
+
+  return prod
+    .populate('categories')
+    .execPopulate()
+    .then(p => {
+      return p.toObject();
+    })
+    .then(addIdField);
 };
-const editProduct = async ({ id, title, description, images, price }) => {
+const editProduct = async ({
+  id,
+  title,
+  description,
+  images,
+  price,
+  categories,
+}) => {
   const imgUrls = images
     ? images.map(img => {
         if (!img.rawFile) return { url: img._doc.url };
@@ -64,9 +97,16 @@ const editProduct = async ({ id, title, description, images, price }) => {
         return { url: name };
       })
     : undefined;
+  categories = await getCategories(categories);
   return Product.updateOne(
     { _id: id },
-    { title, description, price: parseFloat(price), images: imgUrls },
+    {
+      title,
+      description,
+      price: parseFloat(price),
+      images: imgUrls,
+      categories,
+    },
   ).exec();
 };
 

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const productServices = require('../services/product');
+const categoryServices = require('../services/category');
 const { returnError, returnBody, returnData } = require('../helpers/helpers');
 
 const get = async (req, res) => {
@@ -8,10 +8,10 @@ const get = async (req, res) => {
     _start = 0,
     _end = 50,
     _sort = 'updatedAt',
-    _order = 'ASC',
+    _order = 'DESC',
   } = req.query;
 
-  productServices
+  categoryServices
     .get({
       search: q,
       count: _end,
@@ -22,44 +22,45 @@ const get = async (req, res) => {
     .then(returnData(res, req))
     .catch(returnError(res));
 };
-const getProduct = async (req, res) => {
+const addCategory = async (req, res) => {
+  let { title } = req.body;
+
+  categoryServices
+    .addCategory({ title })
+    .then(returnBody(res, req))
+    .catch(returnError(res));
+};
+const getCategory = async (req, res) => {
   let { id } = req.params;
 
-  productServices
-    .getProduct({ id })
+  categoryServices
+    .getCategory({ id })
     .then(returnBody(res, req))
     .catch(returnError(res));
 };
-const deleteProduct = async (req, res) => {
+const deleteCategory = async (req, res) => {
   let { id } = req.params;
 
-  productServices
-    .deleteProduct({ id })
+  categoryServices
+    .deleteCategory({ id })
     .then(returnBody(res, req))
     .catch(returnError(res));
 };
-const addProduct = async (req, res) => {
-  let { description, title, price, images, code, categories } = req.body;
 
-  productServices
-    .addProduct({ description, title, price, images, code, categories })
-    .then(returnBody(res, req))
-    .catch(returnError(res));
-};
-const editProduct = async (req, res) => {
+const editCategory = async (req, res) => {
   const { id } = req.params;
-  const { title, description, price, images, categories } = req.body;
+  const { title } = req.body;
 
-  productServices
-    .editProduct({ id, title, description, price, images, categories })
+  categoryServices
+    .editCategory({ id, title })
     .then(returnBody(res, req))
     .catch(returnError(res));
 };
 
 module.exports = {
   get,
-  getProduct,
-  deleteProduct,
-  addProduct,
-  editProduct,
+  getCategory,
+  deleteCategory,
+  addCategory,
+  editCategory,
 };
