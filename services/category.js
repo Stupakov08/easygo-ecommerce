@@ -6,8 +6,6 @@ const { decodeBase64Image, addIdField } = require('../helpers/helpers');
 
 const Category = require('../models/category');
 
-const {} = require('../errors');
-
 const get = async ({ search, count, skip, sort, order }) => {
   let products;
   try {

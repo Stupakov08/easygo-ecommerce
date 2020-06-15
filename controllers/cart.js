@@ -1,5 +1,4 @@
 require('dotenv').config();
-const categoryServices = require('../services/category');
 const cartServices = require('../services/cart');
 const { returnError, returnBody, returnData } = require('../helpers/helpers');
 
@@ -25,7 +24,4 @@ const updateCart = async (req, res) => {
 module.exports = {
   updateCart,
   getCart,
-  // deleteCategory,
-  // addCategory,
-  // editCategory,
 };

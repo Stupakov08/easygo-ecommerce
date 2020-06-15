@@ -11,8 +11,6 @@ const {
 
 const Cart = require('../models/cart');
 
-const {} = require('../errors');
-
 const updateCart = async ({ id, cartItems }) => {
   cartItems =
     cartItems &&
@@ -56,24 +54,26 @@ const updateCart = async ({ id, cartItems }) => {
 };
 const getCart = async ({ id }) => {
   const cart = await Cart.findOne({ userId: id }).exec();
-
-  return cart
-    .populate('cartItems.productId')
-    .execPopulate()
-    .then(p => {
-      const res = p.toObject();
-      return {
-        ...res,
-        cartItems: productIdtoLine(
-          res.cartItems.map(item => {
-            return {
-              productId: makeImageUrls(addIdField(item.productId)),
-              quantity: item.quantity,
-            };
-          }),
-        ),
-      };
-    });
+  // if (cart) return { cartItems: [] };
+  return cart == null
+    ? { cartItems: null }
+    : cart
+        .populate('cartItems.productId')
+        .execPopulate()
+        .then(p => {
+          const res = p.toObject();
+          return {
+            ...res,
+            cartItems: productIdtoLine(
+              res.cartItems.map(item => {
+                return {
+                  productId: makeImageUrls(addIdField(item.productId)),
+                  quantity: item.quantity,
+                };
+              }),
+            ),
+          };
+        });
 };
 
 module.exports = {

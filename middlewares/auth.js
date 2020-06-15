@@ -11,7 +11,9 @@ module.exports = (req, res, next) => {
   const token = authHeader.replace('Bearer ', '');
 
   try {
-    Session.verifyAccessToken(token);
+    const data = Session.verifyAccessToken(token);
+
+    res.userId = data.payload.userId;
     next();
   } catch (err) {
     returnError(res)(err);

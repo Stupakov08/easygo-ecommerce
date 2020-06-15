@@ -62,7 +62,7 @@ adminSessionSchema.statics = {
     };
     return {
       id: payload.id,
-      token: jwt.sign(payload, process.env.JWT_SECRET_REFRESH, options),
+      token: jwt.sign(payload, process.env.JWT_SECRET_REFRESH_ADMIN, options),
     };
   },
 
@@ -71,14 +71,14 @@ adminSessionSchema.statics = {
       payload,
       type: tokens.access.type,
     };
-    const options = { expiresIn: '30m' };
+    const options = { expiresIn: '60m' };
 
-    return jwt.sign(data, process.env.JWT_SECRET_ACCESS, options);
+    return jwt.sign(data, process.env.JWT_SECRET_ACCESS_ADMIN, options);
   },
 
   verifyAccessToken: token => {
     try {
-      return jwt.verify(token, process.env.JWT_SECRET_ACCESS);
+      return jwt.verify(token, process.env.JWT_SECRET_ACCESS_ADMIN);
     } catch (e) {
       throw e instanceof jwt.TokenExpiredError
         ? new TokenExpiredError()
@@ -88,7 +88,7 @@ adminSessionSchema.statics = {
 
   verifyRefreshToken: token => {
     try {
-      return jwt.verify(token, process.env.JWT_SECRET_REFRESH);
+      return jwt.verify(token, process.env.JWT_SECRET_REFRESH_ADMIN);
     } catch (e) {
       throw e instanceof jwt.TokenExpiredError
         ? new TokenExpiredError()
