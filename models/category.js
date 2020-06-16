@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
-const { addIdField, makeImageUrls } = require('../helpers/helpers');
+const {
+  addIdField,
+  makeCategoryImageUrls,
+  makeCategoryImageUrl,
+} = require('../helpers/helpers');
 const fetch = require('node-fetch');
 
 const categorytSchema = new mongoose.Schema(
@@ -8,7 +12,12 @@ const categorytSchema = new mongoose.Schema(
       type: String,
       trim: true,
       required: true,
+      unique: true,
       maxlength: 64,
+    },
+    image: {
+      type: String,
+      trim: true,
     },
   },
   { timestamps: true },
@@ -23,6 +32,7 @@ categorytSchema.statics = {
       .lean()
       .then(async res => {
         res = addIdField(res);
+        res = makeCategoryImageUrls(res);
         const total = await Category.countDocuments({
           title: new RegExp('^' + search, 'i'),
         });
@@ -32,7 +42,7 @@ categorytSchema.statics = {
   },
   getCategory: async function ({ id }) {
     let cat = await Category.findById(id);
-    return makeImageUrls(addIdField(cat._doc));
+    return makeCategoryImageUrl(addIdField(cat._doc));
   },
 };
 

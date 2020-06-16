@@ -23,10 +23,10 @@ const get = async (req, res) => {
     .catch(returnError(res));
 };
 const addCategory = async (req, res) => {
-  let { title } = req.body;
+  let { title, images } = req.body;
 
   categoryServices
-    .addCategory({ title })
+    .addCategory({ title, images })
     .then(returnBody(res, req))
     .catch(returnError(res));
 };
@@ -49,10 +49,10 @@ const deleteCategory = async (req, res) => {
 
 const editCategory = async (req, res) => {
   const { id } = req.params;
-  const { title } = req.body;
+  const { title, images } = req.body;
 
   categoryServices
-    .editCategory({ id, title })
+    .editCategory({ id, title, images })
     .then(returnBody(res, req))
     .catch(returnError(res));
 };

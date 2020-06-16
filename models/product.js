@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { addIdField, makeImageUrls } = require('../helpers/helpers');
 const fetch = require('node-fetch');
+const Category = require('./category');
 
 const productSchema = new mongoose.Schema(
   {
@@ -38,8 +39,14 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.statics = {
-  get: function ({ search, count, skip, sort, order }) {
-    return Product.find({ title: new RegExp('^' + search, 'i') })
+  get: async function ({ search, count, skip, sort, order, category }) {
+    const cat = await Category.find({ title: category }).exec();
+    const catquery =
+      category && cat.length != 0
+        ? { categories: mongoose.Types.ObjectId(cat[0]._id) }
+        : {};
+
+    return Product.find({ title: new RegExp('^' + search, 'i'), ...catquery })
       .populate('categories')
       .sort({ [sort]: order })
       .limit(count - skip)
@@ -50,6 +57,7 @@ productSchema.statics = {
         res = makeImageUrls(res);
         const total = await Product.countDocuments({
           title: new RegExp('^' + search, 'i'),
+          ...catquery,
         });
 
         return { data: res, total };

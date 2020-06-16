@@ -7,12 +7,19 @@ const { decodeBase64Image, addIdField } = require('../helpers/helpers');
 const Product = require('../models/product');
 const Category = require('../models/category');
 
-const get = async ({ search, count, skip, sort, order }) => {
+const get = async ({ search, count, skip, sort, order, category }) => {
   let products;
   try {
     count = parseInt(count);
     skip = parseInt(skip);
-    products = await Product.get({ search, count, skip, sort, order });
+    products = await Product.get({
+      search,
+      category,
+      count,
+      skip,
+      sort,
+      order,
+    });
   } catch (e) {
     throw e;
   }

@@ -5,6 +5,7 @@ const { returnError, returnBody, returnData } = require('../helpers/helpers');
 const get = async (req, res) => {
   let {
     q = '',
+    c = '',
     _start = 0,
     _end = 50,
     _sort = 'updatedAt',
@@ -18,6 +19,7 @@ const get = async (req, res) => {
       skip: _start,
       sort: _sort,
       order: _order,
+      category: c,
     })
     .then(returnData(res, req))
     .catch(returnError(res));

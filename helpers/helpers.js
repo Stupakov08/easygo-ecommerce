@@ -33,6 +33,18 @@ const makeImageUrl = p => {
   });
   return { ...p, images };
 };
+const makeCategoryImageUrl = p => {
+  if (!p.image) return p;
+  let image = { url: `http://localhost:8000/static/categories/${p.image}` };
+
+  return { ...p, image };
+};
+const makeCategoryImageUrls = products => {
+  if (Array.isArray(products)) {
+    return products.map(makeCategoryImageUrl);
+  }
+  return makeCategoryImageUrl(products);
+};
 const filterByProps = (res, arrayOfProps) => {
   if (Array.isArray(res)) {
     return (
@@ -104,7 +116,9 @@ module.exports = {
   returnData,
   decodeBase64Image,
   makeImageUrls,
+  makeCategoryImageUrl,
   filterByProps,
   productIdtoLine,
   makeImgUrls,
+  makeCategoryImageUrls,
 };
