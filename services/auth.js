@@ -72,6 +72,11 @@ const verifyEmail = async token => {
 
   return User.verifyUser(payload.userId);
 };
+const updateUser = async ({ id, name }) => {
+  const user = await User.findById(id).exec();
+  user.name = name;
+  return user.save();
+};
 
 module.exports = {
   signUp,
@@ -79,4 +84,5 @@ module.exports = {
   signOut,
   refreshTokens,
   verifyEmail,
+  updateUser,
 };

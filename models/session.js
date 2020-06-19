@@ -54,7 +54,7 @@ sessionSchema.statics = {
       type: tokens.refresh.type,
     };
     const options = {
-      expiresIn: '60d',
+      expiresIn: tokens.refresh.expiresIn,
     };
     return {
       id: payload.id,
@@ -67,7 +67,7 @@ sessionSchema.statics = {
       payload,
       type: tokens.access.type,
     };
-    const options = { expiresIn: '2m' };
+    const options = { expiresIn: tokens.access.expiresIn };
 
     return jwt.sign(data, process.env.JWT_SECRET_ACCESS, options);
   },

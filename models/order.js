@@ -40,7 +40,10 @@ orderSchema.statics = {
   getForUser: function ({ search, count, skip, sort, order, id }) {
     return Order.find({ orderId: new RegExp('^' + search, 'i') })
       .where({ userId: id })
-      .populate('userId')
+      .populate({
+        path: 'userId',
+        select: '-password_hash',
+      })
       .populate('cartItems.productId')
       .sort({ [sort]: order })
       .limit(count - skip)
@@ -60,7 +63,10 @@ orderSchema.statics = {
   },
   get: function ({ search, count, skip, sort, order }) {
     return Order.find({ orderId: new RegExp('^' + search, 'i') })
-      .populate('userId')
+      .populate({
+        path: 'userId',
+        select: '-password_hash',
+      })
       .populate('cartItems.productId')
       .sort({ [sort]: order })
       .limit(count - skip)
@@ -76,7 +82,10 @@ orderSchema.statics = {
   },
   getOrder: async function ({ id }) {
     let order = await Order.findById(id)
-      .populate('userId')
+      .populate({
+        path: 'userId',
+        select: '-password_hash',
+      })
       .populate('cartItems.productId');
     order = {
       ...order._doc,

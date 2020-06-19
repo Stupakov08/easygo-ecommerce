@@ -2,7 +2,7 @@ module.exports = {
   jwt: {
     tokens: {
       access: {
-        expiresIn: '5m',
+        expiresIn: '15m',
       },
       refresh: {
         expiresIn: '60d',

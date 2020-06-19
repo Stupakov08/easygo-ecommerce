@@ -31,7 +31,18 @@ const getProduct = async ({ id }) => {
   return product;
 };
 const deleteProduct = async ({ id }) => {
-  return Product.deleteOne({ _id: id }).exec();
+  const existProduct = await Product.findById(id);
+
+  return Product.deleteOne({ _id: id })
+    .exec()
+    .then(r => {
+      if (existProduct && existProduct.images.length > 0) {
+        existProduct.images.map(i => {
+          fs.unlinkSync(path.join(__dirname, '/../static/products/') + i.url);
+        });
+      }
+      return r;
+    });
 };
 const getCategories = async categories => {
   return Promise.all(
@@ -104,8 +115,9 @@ const editProduct = async ({
         return { url: name };
       })
     : undefined;
+
   categories = await getCategories(categories);
-  return Product.updateOne(
+  const updated = Product.updateOne(
     { _id: id },
     {
       title,
@@ -115,6 +127,7 @@ const editProduct = async ({
       categories,
     },
   ).exec();
+  return updated;
 };
 
 module.exports = {

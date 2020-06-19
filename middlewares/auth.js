@@ -7,7 +7,6 @@ module.exports = (req, res, next) => {
   if (!authHeader) {
     return res.status(401).json({ message: 'Token not provided!' });
   }
-
   const token = authHeader.replace('Bearer ', '');
 
   try {

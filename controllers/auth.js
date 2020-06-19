@@ -1,6 +1,10 @@
 require('dotenv').config();
 const authServices = require('../services/auth');
-const { returnError, returnAuthTokens } = require('../helpers/helpers');
+const {
+  returnError,
+  returnAuthTokens,
+  returnBody,
+} = require('../helpers/helpers');
 const clientUrl = require('../config/app').clientUrl;
 
 const signUp = async (req, res) => {
@@ -46,6 +50,15 @@ const verifyEmail = (req, res) => {
     .then(() => res.status(200).redirect(`${clientUrl}/verified`))
     .catch(returnError(res));
 };
+const updateUser = (req, res) => {
+  const id = req.params.id;
+  const { name } = req.body;
+
+  authServices
+    .updateUser({ id, name })
+    .then(returnBody(res, req))
+    .catch(returnError(res));
+};
 
 module.exports = {
   signUp,
@@ -53,4 +66,5 @@ module.exports = {
   signOut,
   refreshTokens,
   verifyEmail,
+  updateUser,
 };

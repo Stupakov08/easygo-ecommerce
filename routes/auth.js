@@ -7,6 +7,7 @@ const {
   refreshTokensValidator,
 } = require('../validators/auth');
 const { runValidation } = require('../validators');
+const authMiddleware = require('../middlewares/auth');
 
 router.post(
   '/signup',
@@ -26,6 +27,7 @@ router.post(
   runValidation,
   authController.refreshTokens,
 );
+router.put('/user/:id', authMiddleware, authController.updateUser);
 router.post('/signout', authController.signOut);
 
 router.get('/verifyemail/:token', authController.verifyEmail);
