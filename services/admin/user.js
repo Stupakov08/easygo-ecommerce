@@ -2,7 +2,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const uid = require('uid');
-const { decodeBase64Image } = require('../../helpers/helpers');
+const { decodeBase64Image, addIdField } = require('../../helpers/helpers');
 
 const AdminUser = require('../../models/admin/user');
 
@@ -30,7 +30,7 @@ const addUser = async ({ email, password, passwordconf, superadmin }) => {
     superadmin,
   }).save();
 
-  return newUser;
+  return addIdField(newUser);
 };
 
 const getUser = async ({ id }) => {
@@ -53,10 +53,14 @@ const editUser = async ({ id, email, password, passwordconf, superadmin }) => {
     doc.save();
   });
 };
+const deleteUser = async ({ id }) => {
+  return AdminUser.deleteOne({ _id: id }).exec();
+};
 
 module.exports = {
   get,
   addUser,
   getUser,
   editUser,
+  deleteUser,
 };

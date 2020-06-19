@@ -15,7 +15,6 @@ module.exports = (req, res, next) => {
     req.superadmin = payload.superadmin;
     next();
   } catch (err) {
-    console.log('AUTH MIDDLE', err);
     returnError(res)(err);
   }
 };

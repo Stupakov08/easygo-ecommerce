@@ -53,10 +53,19 @@ const editUser = async (req, res) => {
     .then(returnBody(res, req))
     .catch(returnError(res));
 };
+const deleteUser = async (req, res) => {
+  let { id } = req.params;
+
+  adminUserServices
+    .deleteUser({ id })
+    .then(returnBody(res, req))
+    .catch(returnError(res));
+};
 
 module.exports = {
   get,
   add,
   getUser,
   editUser,
+  deleteUser,
 };

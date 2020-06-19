@@ -61,7 +61,8 @@ adminUserSchema.statics = {
   },
   getUser: async function ({ id }) {
     let product = await AdminUser.findById(id);
-    return filterByProps(addIdField(product._doc), [
+    product = addIdField(product._doc);
+    return filterByProps(product, [
       '_id',
       'id',
       'email',

@@ -7,7 +7,8 @@ const authMiddleware = require('./middlewares/auth');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const clientUrl = require('./config/app').clientUrl;
-const adminUrl = 'http://localhost:3001';
+const adminUrl = require('./config/app').adminUrl;
+
 const app = express();
 
 //middlewares

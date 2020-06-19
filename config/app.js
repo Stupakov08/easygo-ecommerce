@@ -14,4 +14,5 @@ module.exports = {
     emailConfirmation: true,
   },
   clientUrl: 'http://localhost:3000',
+  adminUrl: 'http://localhost:3001',
 };

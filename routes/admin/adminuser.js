@@ -8,5 +8,11 @@ router.get('/', authMiddleware, adminUserController.get);
 router.post('/', authMiddleware, permissionMiddleware, adminUserController.add);
 router.get('/:id', authMiddleware, adminUserController.getUser);
 router.put('/:id', authMiddleware, adminUserController.editUser);
+router.delete(
+  '/:id',
+  authMiddleware,
+  permissionMiddleware,
+  adminUserController.deleteUser,
+);
 
 module.exports = router;
